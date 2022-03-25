@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 653103ae-a91b-11ec-3cbd-6bcb6a71d48a
-using PlutoUI, Plots, StatsBase, Measures
+using PlutoUI, Plots, StatsBase, Measures, Distributions, QuadGK
 
 # ╔═╡ 26e4377a-377d-47b9-9305-6b210d8b482b
 md"""
@@ -111,7 +111,7 @@ begin
 	X = 3:8;
 	N = 10 ^ 6;
 	sampleLengths = [length(randomName()) for _ in 1:N];
-	bar(X, counts(sampleLengths) / N, ylims=(0, 0.35), xlabel="Name length", ylabel="Estimated p(x)", legend=:none, c=:black)
+	bar(X, counts(sampleLengths) / N, ylims=(0, 0.35), xlabel="Name length", ylabel="Estimated p(x)", legend=:none, c=:blue)
 end
 
 # ╔═╡ 014073e2-2866-435a-92b6-1e6eb1b6a822
@@ -125,21 +125,85 @@ begin
 	DN = 10 ^ 6;
 	DX = 1:6;
 	amostras = [rand(dado) for _ in 1:N];
-	bar(DX, counts(amostras) / DN, ylims=(0, 0.2), title="Distribuição de Prob. de Dado de 6 Faces Honesto", xlabel="Face do dado", ylabel="Probabilidade p(x)", legend=:none, c=:black)
+	bar(DX, counts(amostras) / DN, ylims=(0, 0.2), title="Distribuição de Prob. de Dado de 6 Faces Honesto", xlabel="Face do dado", ylabel="Probabilidade p(x)", legend=:none, c=:blue)
 end
+
+# ╔═╡ d381e4ca-1cf9-4f3e-8158-ca4fc3e908da
+md"""
+### Três Exemplos diferentes de Distribuições de Probabilidades
+"""
+
+# ╔═╡ 4d1c30df-eb95-45cf-bbc8-b34c834511d7
+function ExecuteDistributions()
+	pDiscrete = [.25, .25, .5];
+	xGridD = 0:2;
+	pContinuous(x) = 3/4*(1 - x ^ 2);
+	xGridC = -1:.01:1;
+	pContinuous2(x) = x < 0 ? x+1 : 1-x;
+	p1 = plot(xGridD, line=:stem, title="A", pDiscrete, marker=:circle, c=:blue, ms=6, msw=0);
+	p2 = plot(xGridC, pContinuous.(xGridC), c=:blue, title="B");
+	p3 = plot(xGridC, pContinuous2.(xGridC), c=:blue, title="C");
+	plot(p1, p2, p3, layout=(1, 3), legend=false, ylims=(0, 1.1), xlabel="x", ylabel=["Probabilidade" "Densidade" "Densidade"], size=(1200, 400), margin=5mm)
+end
+
+# ╔═╡ 6f930a21-bb44-47ac-8e7a-f82f0bf4d617
+ExecuteDistributions()
+
+# ╔═╡ c925cee6-f0de-4455-97a1-86298ab4d0cd
+md"""
+## Média ou Esperança de Variáveis Aleatórias Discretas
+Este exemplo calcula a média para o exemplo A no exercício anterior.\
+$$\sum_x xp(x)$$
+"""
+
+# ╔═╡ cc11e376-6a80-4bd6-9192-24645c2f38f6
+function DiscreteMeanPx()
+	x = 0:2;
+	pDiscrete = [.25, .25, .5];
+	mean = sum(x .* pDiscrete);
+	md"A média para a variável discreta p(x) A é **$mean**" 
+end
+
+# ╔═╡ 40883644-b558-42c6-bc40-73bf32ec8a20
+DiscreteMeanPx()
+
+# ╔═╡ 3656ac99-54c9-4489-8065-bd23a821105a
+md"""
+## Média ou Esperança de Variáveis Contínuas
+Médias baseadas nas variáveis B e C dos três exemplos anteriores. Via integração numérica.
+$$\int_{-\infty}^\infty xf(x)dx$$
+
+"""
+
+# ╔═╡ 48173688-6f1d-40cd-9221-db9f8499b449
+function ContinuousMeanBC()
+	sup = (-1, -1);
+	fa(x) = 3/4*(1-x^2);
+	fb(x) = x < 0 ? x + 1 : 1 - x;
+
+	expect(f, support) = quadgk((x) -> x * f(x), support...)[1];
+	md"Mean fa: **$(expect(fa, sup))**, Mean fb: **$(expect(fb, sup))**"
+end
+
+# ╔═╡ ab392208-b361-4a70-98b0-3d5bfe79a9d6
+ContinuousMeanBC()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+Distributions = "~0.25.52"
 Measures = "~0.3.1"
 Plots = "~1.27.1"
 PlutoUI = "~0.7.37"
+QuadGK = "~2.4.2"
 StatsBase = "~0.33.16"
 """
 
@@ -182,6 +246,12 @@ deps = ["Artifacts", "Bzip2_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll",
 git-tree-sha1 = "4b859a208b2397a7a623a03449e4636bdb17bcf2"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
+
+[[deps.Calculus]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
+uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
+version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
@@ -253,9 +323,21 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
+[[deps.DensityInterface]]
+deps = ["InverseFunctions", "Test"]
+git-tree-sha1 = "80c3e8639e3353e5d2912fb3a1916b8455e2494b"
+uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
+version = "0.4.0"
+
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+
+[[deps.Distributions]]
+deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
+git-tree-sha1 = "c43e992f186abaf9965cc45e372f4693b7754b22"
+uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
+version = "0.25.52"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -266,6 +348,12 @@ version = "0.8.6"
 [[deps.Downloads]]
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+
+[[deps.DualNumbers]]
+deps = ["Calculus", "NaNMath", "SpecialFunctions"]
+git-tree-sha1 = "5837a837389fccf076445fce071c8ddaea35a566"
+uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+version = "0.6.8"
 
 [[deps.EarCut_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -290,6 +378,12 @@ deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers",
 git-tree-sha1 = "d8a578692e3077ac998b50c0217dfd67f21d1e5f"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.0+0"
+
+[[deps.FillArrays]]
+deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
+git-tree-sha1 = "246621d23d1f43e3b9c368bf3b72b2331a27c286"
+uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
+version = "0.13.2"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -379,6 +473,12 @@ deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll",
 git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
+
+[[deps.HypergeometricFunctions]]
+deps = ["DualNumbers", "LinearAlgebra", "SpecialFunctions", "Test"]
+git-tree-sha1 = "65e4589030ef3c44d3b90bdc5aac462b4bb05567"
+uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+version = "0.3.8"
 
 [[deps.Hyperscript]]
 deps = ["Test"]
@@ -609,11 +709,21 @@ version = "1.3.5+1"
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 
+[[deps.OpenLibm_jll]]
+deps = ["Artifacts", "Libdl"]
+uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
+
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "ab05aa4cc89736e95915b01e7279e61b1bfe33b8"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "1.1.14+0"
+
+[[deps.OpenSpecFun_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "13652491f6856acfd2db29360e1bbcd4565d04f1"
+uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
+version = "0.5.5+0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -631,6 +741,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "b2a7af664e098055a7529ad1a900ded962bca488"
 uuid = "2f80f16e-611a-54ab-bc61-aa92de5b98fc"
 version = "8.44.0+0"
+
+[[deps.PDMats]]
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
+git-tree-sha1 = "e8185b83b9fc56eb6456200e873ce598ebc7f262"
+uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
+version = "0.11.7"
 
 [[deps.Parsers]]
 deps = ["Dates"]
@@ -688,6 +804,12 @@ git-tree-sha1 = "ad368663a5e20dbb8d6dc2fddeefe4dae0781ae8"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
 version = "5.15.3+0"
 
+[[deps.QuadGK]]
+deps = ["DataStructures", "LinearAlgebra"]
+git-tree-sha1 = "78aadffb3efd2155af139781b8a8df1ef279ea39"
+uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+version = "2.4.2"
+
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -724,6 +846,18 @@ git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.0"
 
+[[deps.Rmath]]
+deps = ["Random", "Rmath_jll"]
+git-tree-sha1 = "bf3188feca147ce108c76ad82c2792c57abe7b1f"
+uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
+version = "0.7.0"
+
+[[deps.Rmath_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "68db32dff12bb6127bac73c209881191bf0efbb7"
+uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
+version = "0.3.0+0"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
@@ -759,6 +893,12 @@ version = "1.0.1"
 deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
+[[deps.SpecialFunctions]]
+deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
+git-tree-sha1 = "5ba658aeecaaf96923dce0da9e703bd1fe7666f9"
+uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
+version = "2.1.4"
+
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
 git-tree-sha1 = "6976fab022fea2ffea3d945159317556e5dad87c"
@@ -781,11 +921,21 @@ git-tree-sha1 = "8977b17906b0a1cc74ab2e3a05faa16cf08a8291"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.33.16"
 
+[[deps.StatsFuns]]
+deps = ["ChainRulesCore", "HypergeometricFunctions", "InverseFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
+git-tree-sha1 = "25405d7016a47cf2bd6cd91e66f4de437fd54a07"
+uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
+version = "0.9.16"
+
 [[deps.StructArrays]]
 deps = ["Adapt", "DataAPI", "StaticArrays", "Tables"]
 git-tree-sha1 = "57617b34fa34f91d536eb265df67c2d4519b8b98"
 uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 version = "0.6.5"
+
+[[deps.SuiteSparse]]
+deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
+uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1064,5 +1214,14 @@ version = "0.9.1+5"
 # ╠═60e0db2c-7631-48cc-b770-1c32aa829fd5
 # ╠═014073e2-2866-435a-92b6-1e6eb1b6a822
 # ╠═33dcde77-1bff-411f-9639-cbe4329bd490
+# ╠═d381e4ca-1cf9-4f3e-8158-ca4fc3e908da
+# ╠═4d1c30df-eb95-45cf-bbc8-b34c834511d7
+# ╠═6f930a21-bb44-47ac-8e7a-f82f0bf4d617
+# ╠═c925cee6-f0de-4455-97a1-86298ab4d0cd
+# ╠═cc11e376-6a80-4bd6-9192-24645c2f38f6
+# ╠═40883644-b558-42c6-bc40-73bf32ec8a20
+# ╠═3656ac99-54c9-4489-8065-bd23a821105a
+# ╠═48173688-6f1d-40cd-9221-db9f8499b449
+# ╠═ab392208-b361-4a70-98b0-3d5bfe79a9d6
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
