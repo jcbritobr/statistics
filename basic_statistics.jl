@@ -5,11 +5,14 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 653103ae-a91b-11ec-3cbd-6bcb6a71d48a
-using PlutoUI, Plots, StatsBase, Measures, Distributions, QuadGK
+begin
+	using PlutoUI, Plots, StatsBase, Measures, Distributions, QuadGK
+	using LaTeXStrings
+end
 
 # ╔═╡ 26e4377a-377d-47b9-9305-6b210d8b482b
 md"""
-# Estatística Básica
+# Estatística na Linguagem Julia
 ## Probabilidade
 _Probabilidade_ é a chance de algum evento acontecer, quantificados como números entre 0 e 1, com valores mais altos indicando uma maior probabilidade de ocorrência.
 Uma maneira de representar a idéia acima é considerar uma _espaço de probabilidade_ que consiste de 3 elementos:
@@ -26,7 +29,7 @@ $\mathbb{P(A) = A/Ω}$
 
 # ╔═╡ 1952bd5c-162e-4f32-9e7c-3eb5a8c9f7b1
 md"""
-### Urna com 20 bolas
+### Urna com Bolas Coloridas
 Considere uma urna com 20 bolas. Sendo 5 delas azuis e 15 vermelhas. Qual a probabilidade de se retirar uma bola com a cor azul?\
 **Ω = {a, a, a, a, a, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v}**\
 **A = {a, a, a, a, a}**\
@@ -34,12 +37,22 @@ $\mathbb{P(A) = A/Ω}$
 """
 
 # ╔═╡ 8d2f266a-caf8-41a3-ae7a-5b4bae8e4c78
-5/20
+function ProbabilityAOmega()
+	Ω = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+	A = [0, 0, 0, 0, 0];
+	p = length(A)/length(Ω);
+	println("A probabilidade de se retirar uma bola azul é $p");
+end
+
+# ╔═╡ 5e8ad639-4cc4-45d0-a409-9ae2cbc932c4
+ProbabilityAOmega()
 
 # ╔═╡ c74fa1b1-5511-42c1-bf0a-5e97132e0f02
 md"""
 ### Simulação Monte Carlo
-A _Simulação de Monte Carlo_, também conhecida como _Método de Monte Carlo_ ou uma _simulação de probabilidade múltipla_, é uma técnica matemática, que é usada para estimar os possíveis resultados de um evento incerto. O Método de Monte Carlo foi inventado por John von Neumann e Stanislaw Ulam durante a Segunda Guerra Mundial para melhorar a tomada de decisão em condições incertas. Foi nomeado em homenagem a uma conhecida cidade de cassinos, chamada Mônaco, uma vez que o acaso é principal elemento da abordagem de modelagem, semelhante a um jogo de roleta.
+A _Simulação de Monte Carlo_, também conhecida como _Método de Monte Carlo_ ou uma _simulação de probabilidade múltipla_, é uma técnica matemática, que é usada para estimar os possíveis resultados de um evento incerto. O Método de Monte Carlo foi inventado por John von Neumann e Stanislaw Ulam durante a Segunda Guerra Mundial para melhorar a tomada de decisão em condições incertas. Foi nomeado em homenagem a uma conhecida cidade de cassinos, chamada Mônaco, uma vez que o acaso é principal elemento da abordagem de modelagem, semelhante a um jogo de roleta. Experimentos com Monte Carlo se baseiam na _Lei dos Grandes Números_. Este conjunto de afirmações matemáticas afirma que as **médias empíricas** convergem para os valores esperados.
+
+$$\overline{X}_n = \frac{1}n \sum_{k=1}^n X_k,$$
 
 Simularemos o exemplo da urna com 20 bolas abaixo:
 """
@@ -52,8 +65,8 @@ begin
 	NB = 10 ^ 6; # Número de experimentos - 1mi
 	# Observamos no resultado com 1mi experimentos aleatórios que
 	# se aproxima do valor numérico A/Ω - 0.25
-	resultado = sum([(sample(Ω) in A) for _ in 1:NB]) / NB;
-	md"Resultado da estimativa do método de monte carlo: **$resultado**"
+	resultado = sum([(sample(Ω) in A) for _ in 1:NB]) / NB; # Média empírica
+	println("Estimativa do método de monte carlo: $resultado");
 end
 
 # ╔═╡ 6083d9ef-78f6-4aa3-a1b4-2079186db166
@@ -63,25 +76,28 @@ Uma parte importante da probabilidade são os conjuntos. É através deles que r
 """
 
 # ╔═╡ 57055390-7986-4b1e-a912-a7694774144b
-begin
+function WorkingWithSets()
 	C = Set([2, 7, 2, 3]);
 	D = Set(1:6);
 	omega = Set(1:10);
 	cUnionD = union(C, D);
-	cIntersectionD = intersect(C, D);
+	cIntersectionD = intersect(C, D)
 	cDifferenceD = setdiff(D, C);
 	dComplement = setdiff(omega, D);
 	dSubsetOmega = issubset(D, omega);
-	
-	md"**Omega**: $omega\
-	**C**: $C\
-	**D**: $D\
-	**C ⋃ D**: $cUnionD\
-	**C ⋂ D**: $cIntersectionD\
-	**D diferença C**: $cDifferenceD\
-	**D complemento**: $dComplement\
-	**D é subconjunto de Omega**: $dSubsetOmega"
+
+	println("Omega: $omega");
+	println("C: $C");
+	println("D: $D");
+	println("C ∪ D: $cUnionD");
+	println("C ⋂ D: $cIntersectionD");
+	println("D diferença C: $cDifferenceD");
+	println("D complemento: $dComplement");
+	println("D é subconjunto: $dSubsetOmega");
 end
+
+# ╔═╡ 52564831-4087-4cec-b47c-f88e6a045576
+WorkingWithSets()
 
 # ╔═╡ 2176a0a5-65f3-4434-a480-d6aea8adb68b
 md"""
@@ -153,7 +169,7 @@ ExecuteDistributions()
 md"""
 ## Média ou Esperança de Variáveis Aleatórias Discretas
 Este exemplo calcula a média para o exemplo A no exercício anterior.\
-$$\sum_x xp(x)$$
+$$\sum_{x} xp(x)$$
 """
 
 # ╔═╡ cc11e376-6a80-4bd6-9192-24645c2f38f6
@@ -182,16 +198,66 @@ function ContinuousMeanBC()
 	fb(x) = x < 0 ? x + 1 : 1 - x;
 
 	expect(f, support) = quadgk((x) -> x * f(x), support...)[1];
-	md"Mean fa: **$(expect(fa, sup))**, Mean fb: **$(expect(fb, sup))**"
+	println("Mean fa: ", expect(fa, sup), ", Mean fb: ", expect(fb, sup))
 end
 
 # ╔═╡ ab392208-b361-4a70-98b0-3d5bfe79a9d6
 ContinuousMeanBC()
 
+# ╔═╡ 35f01290-5202-4822-bf78-0972c6f1c9d3
+md"""
+## Mostrando que a variância de p(x) é igual a média de y
+Mostrando que a variância de p(x) é igual a média de y em variáveis contínuas.
+"""
+
+# ╔═╡ f665d69a-c231-4754-a9f4-ef5ea5d5fb08
+function VarianceXEqualsMeanY()
+	dist = TriangularDist(4, 6, 5);
+	N = 10 ^ 6;
+	data = rand(dist, N);
+	yData = (data .- 5).^2;
+	println("Média: ", mean(yData), " Variância: ", var(data));
+	p1 = histogram(data, xlabel="x", bins=80, normed=true, ylims = (0, 1.1));
+	p2 = histogram(yData, xlabel="y", bins=80, normed=true, ylims = (0, 15));
+	plot(p1, p2, ylabel = "Proporção", size=(800, 450), legend=:none)
+end
+
+# ╔═╡ d3ec82a5-0e9a-46f6-942c-07c194dc5abd
+VarianceXEqualsMeanY()
+
+# ╔═╡ 04d3b996-6ed5-45f1-9764-19cc15efe2de
+md"""
+## Funções que Descrevem Distribuições
+Além das **pmf(probability mass function)** e **pdf(probability density function)** existem outras funções representantes de distribuições de probabilidade como a _Função Distribuição Cumulativa (cdf)_, _Função Distribuição Cumulativa Complementar (ccdf)_ e _Função Distribuição Cumulativa Inversa (icdf)_. Distribuições de probabilidade podem ser descritas de várias formas alternativas.  
+## CDF a partir do Somatório de Riemman de uma PDF
+"""
+
+# ╔═╡ 8c5c3321-55dc-40af-aec5-0146a2c00238
+function CDFFromRiemmanPDF()
+	a, b = -1.5, 1.5;
+	f2(x) = (x < 0 ? x + 1 : 1 - x) * (abs(x) < 1 ? 1 : 0);
+	delta = 0.01;
+
+	xGrid = a:delta:b;
+	F(x) = sum([f2(u) * delta for u in a:delta:x]);
+	y = [F(u) for u in xGrid];
+	plot(xGrid, y, c=:blue, xlims=(a, b), ylims=(0, 1), xlabel=L"x", ylabel=L"F(x)", legend=:none)
+end
+
+# ╔═╡ 2ac8ef95-02a6-4bc7-97a4-92f8b148b55e
+CDFFromRiemmanPDF()
+
+# ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
+md"""
+$$\sum_{k=1}^n+\prod_{k=2}^n+\lim_{x=\infty}f(x)=0$$
+$$k <= x$$
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -200,8 +266,9 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Distributions = "~0.25.52"
+LaTeXStrings = "~1.3.0"
 Measures = "~0.3.1"
-Plots = "~1.27.1"
+Plots = "~1.27.2"
 PlutoUI = "~0.7.37"
 QuadGK = "~2.4.2"
 StatsBase = "~0.33.16"
@@ -255,9 +322,9 @@ version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c9a6160317d1abe9c44b3beb367fd448117679ca"
+git-tree-sha1 = "9950387274246d08af38f6eef8cb5480862a435f"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.13.0"
+version = "1.14.0"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -778,9 +845,9 @@ version = "1.2.0"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "GeometryBasics", "JSON", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "1690b713c3b460c955a2957cd7487b1b725878a7"
+git-tree-sha1 = "90021b03a38f1ae9dbd7bf4dc5e3dcb7676d302c"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.27.1"
+version = "1.27.2"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -825,9 +892,9 @@ version = "1.2.1"
 
 [[deps.RecipesPipeline]]
 deps = ["Dates", "NaNMath", "PlotUtils", "RecipesBase"]
-git-tree-sha1 = "995a812c6f7edea7527bb570f0ac39d0fb15663c"
+git-tree-sha1 = "dc1e451e15d90347a7decc4221842a022b011714"
 uuid = "01d81517-befc-4cb6-b9ec-a95719d0359c"
-version = "0.5.1"
+version = "0.5.2"
 
 [[deps.Reexport]]
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
@@ -1204,24 +1271,33 @@ version = "0.9.1+5"
 # ╟─26e4377a-377d-47b9-9305-6b210d8b482b
 # ╟─1952bd5c-162e-4f32-9e7c-3eb5a8c9f7b1
 # ╠═8d2f266a-caf8-41a3-ae7a-5b4bae8e4c78
+# ╠═5e8ad639-4cc4-45d0-a409-9ae2cbc932c4
 # ╟─c74fa1b1-5511-42c1-bf0a-5e97132e0f02
 # ╠═3ef272d5-7333-445d-8b17-df578a5e0576
 # ╟─6083d9ef-78f6-4aa3-a1b4-2079186db166
 # ╠═57055390-7986-4b1e-a912-a7694774144b
-# ╠═2176a0a5-65f3-4434-a480-d6aea8adb68b
+# ╠═52564831-4087-4cec-b47c-f88e6a045576
+# ╟─2176a0a5-65f3-4434-a480-d6aea8adb68b
 # ╠═47290cec-bfa9-42b2-89b1-0c679dc8b121
-# ╠═15126370-335c-4cdb-8253-a71e4a1d31d3
+# ╟─15126370-335c-4cdb-8253-a71e4a1d31d3
 # ╠═60e0db2c-7631-48cc-b770-1c32aa829fd5
-# ╠═014073e2-2866-435a-92b6-1e6eb1b6a822
+# ╟─014073e2-2866-435a-92b6-1e6eb1b6a822
 # ╠═33dcde77-1bff-411f-9639-cbe4329bd490
-# ╠═d381e4ca-1cf9-4f3e-8158-ca4fc3e908da
+# ╟─d381e4ca-1cf9-4f3e-8158-ca4fc3e908da
 # ╠═4d1c30df-eb95-45cf-bbc8-b34c834511d7
 # ╠═6f930a21-bb44-47ac-8e7a-f82f0bf4d617
-# ╠═c925cee6-f0de-4455-97a1-86298ab4d0cd
+# ╟─c925cee6-f0de-4455-97a1-86298ab4d0cd
 # ╠═cc11e376-6a80-4bd6-9192-24645c2f38f6
 # ╠═40883644-b558-42c6-bc40-73bf32ec8a20
-# ╠═3656ac99-54c9-4489-8065-bd23a821105a
+# ╟─3656ac99-54c9-4489-8065-bd23a821105a
 # ╠═48173688-6f1d-40cd-9221-db9f8499b449
 # ╠═ab392208-b361-4a70-98b0-3d5bfe79a9d6
+# ╟─35f01290-5202-4822-bf78-0972c6f1c9d3
+# ╠═f665d69a-c231-4754-a9f4-ef5ea5d5fb08
+# ╠═d3ec82a5-0e9a-46f6-942c-07c194dc5abd
+# ╟─04d3b996-6ed5-45f1-9764-19cc15efe2de
+# ╠═8c5c3321-55dc-40af-aec5-0146a2c00238
+# ╠═2ac8ef95-02a6-4bc7-97a4-92f8b148b55e
+# ╠═249458e1-a531-4d86-90ea-bab1f73b2400
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
