@@ -7,12 +7,13 @@ using InteractiveUtils
 # ╔═╡ 653103ae-a91b-11ec-3cbd-6bcb6a71d48a
 begin
 	using PlutoUI, Plots, StatsBase, Measures, Distributions, QuadGK
-	using LaTeXStrings
+	using LaTeXStrings, Random
 end
 
 # ╔═╡ 26e4377a-377d-47b9-9305-6b210d8b482b
 md"""
 # Estatística na Linguagem Julia
+Version 0.0.1
 ## Probabilidade
 _Probabilidade_ é a chance de algum evento acontecer, quantificados como números entre 0 e 1, com valores mais altos indicando uma maior probabilidade de ocorrência.
 Uma maneira de representar a idéia acima é considerar uma _espaço de probabilidade_ que consiste de 3 elementos:
@@ -86,14 +87,14 @@ function WorkingWithSets()
 	dComplement = setdiff(omega, D);
 	dSubsetOmega = issubset(D, omega);
 
-	println("Omega: $omega");
+	println("Ômega: $omega");
 	println("C: $C");
 	println("D: $D");
 	println("C ∪ D: $cUnionD");
 	println("C ⋂ D: $cIntersectionD");
 	println("D diferença C: $cDifferenceD");
 	println("D complemento: $dComplement");
-	println("D é subconjunto: $dSubsetOmega");
+	println("D é subconjunto de Ômega: $dSubsetOmega");
 end
 
 # ╔═╡ 52564831-4087-4cec-b47c-f88e6a045576
@@ -247,6 +248,70 @@ end
 # ╔═╡ 2ac8ef95-02a6-4bc7-97a4-92f8b148b55e
 CDFFromRiemmanPDF()
 
+# ╔═╡ a8e2dfb7-8251-466c-9b97-09f82bdd9c30
+md"""
+# Pacotes utilizados para lidar com distribuições
+Abaixo um exemplo que mostra como criar amostras a partir de um WeightVector(vetor de pesos). As probabilidades das amostras da variável data são baseadas nos respectivos pesos.
+"""
+
+# ╔═╡ 2e458ad2-6536-4f4d-aa0d-24676d1f9ff9
+function ExampleWeightVector()
+	Random.seed!(1)
+	grade = ["A", "B", "C", "D", "E"]
+	weightVect = Weights([.1, .2, .1, .2, .4])
+	N = 10^6
+	data = sample(grade, weightVect, N)
+	data = [count(i -> (i == g), data) for g in grade]/N
+	println(data)
+end
+
+# ╔═╡ ac25ff1f-4a91-4135-a678-30d7e58deeba
+ExampleWeightVector()
+
+# ╔═╡ 0c98a2db-4f43-461f-8314-eb0cdc919567
+md"""
+## Usando Objetos para criar distribuições
+Exemplo mostra como usar o pacote _Distributions.jl_ para criar uma distribuição triangular a partir da seguinte densidade:\
+$$f(x)=\begin{cases} x & \quad \text{for } x \in [0,1], \\ 2 - x & \quad \text{for } x \in (1,2]. \end{cases}$$
+"""
+
+# ╔═╡ e9ae5123-84cb-4000-9f74-74ef3cd19b5a
+function GenerateTriagularDistribution()
+	dist = TriangularDist(0, 2, 1)
+	xGrid = 0:.01:2
+	uGrid = 0:.01:1
+	p1 = plot(xGrid, pdf.(dist, xGrid), c=:blue, xlims=(0, 2), ylims=(0, 1.1), xlabel="x", ylabel="f(x) ")
+
+	p2 = plot(xGrid, cdf.(dist, xGrid), c=:blue, xlims=(0, 2), ylims=(0, 1.1), xlabel="x", ylabel="F(x) ")
+
+	p3 = plot(uGrid, quantile.(dist, uGrid), c=:blue, xlims=(0, 1), ylims=(0, 2), xlabel="u", ylabel=L"F^{-1} (u) ")
+
+	plot(p1, p2, p3, legend=false, layout=(1, 3), size=(600, 280))
+end
+
+# ╔═╡ ed4959f6-74ff-40d9-b37c-c413b165b679
+GenerateTriagularDistribution()
+
+# ╔═╡ bcb51ed2-c629-41b1-bd70-f44e6c26ed51
+md"""
+# Descritores de distribuições
+Como recuperar ou modificar parametros de distribuições.
+"""
+
+# ╔═╡ 1668be62-eaee-4035-8f22-5c430bb5c0b4
+function DistributionParams()
+	dist = TriangularDist(0, 2, 1)
+	println("Parâmetros: \t\t\t", params(dist))
+	println("Descritores Centrais: \t\t", mean(dist), "\t", median(dist))
+	println("Descritores de Dispersão: \t", var(dist), "\t", std(dist))
+	println("Descritores de Momento de Alta Ordem: \t", skewness(dist), "\t", kurtosis(dist))
+	println("Intervalo: \t\t\t\t", minimum(dist), "\t", maximum(dist))
+	println("Moda: \t\t\t\t", mode(dist), "\tModas: ", modes(dist))
+end
+
+# ╔═╡ 2f268499-d2b7-49d3-9f04-36968b7a38b7
+DistributionParams()
+
 # ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
 md"""
 $$\sum_{k=1}^n+\prod_{k=2}^n+\lim_{x=\infty}f(x)=0$$
@@ -262,6 +327,7 @@ Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
@@ -1268,7 +1334,7 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╠═653103ae-a91b-11ec-3cbd-6bcb6a71d48a
-# ╟─26e4377a-377d-47b9-9305-6b210d8b482b
+# ╠═26e4377a-377d-47b9-9305-6b210d8b482b
 # ╟─1952bd5c-162e-4f32-9e7c-3eb5a8c9f7b1
 # ╠═8d2f266a-caf8-41a3-ae7a-5b4bae8e4c78
 # ╠═5e8ad639-4cc4-45d0-a409-9ae2cbc932c4
@@ -1289,7 +1355,7 @@ version = "0.9.1+5"
 # ╟─c925cee6-f0de-4455-97a1-86298ab4d0cd
 # ╠═cc11e376-6a80-4bd6-9192-24645c2f38f6
 # ╠═40883644-b558-42c6-bc40-73bf32ec8a20
-# ╟─3656ac99-54c9-4489-8065-bd23a821105a
+# ╠═3656ac99-54c9-4489-8065-bd23a821105a
 # ╠═48173688-6f1d-40cd-9221-db9f8499b449
 # ╠═ab392208-b361-4a70-98b0-3d5bfe79a9d6
 # ╟─35f01290-5202-4822-bf78-0972c6f1c9d3
@@ -1298,6 +1364,15 @@ version = "0.9.1+5"
 # ╟─04d3b996-6ed5-45f1-9764-19cc15efe2de
 # ╠═8c5c3321-55dc-40af-aec5-0146a2c00238
 # ╠═2ac8ef95-02a6-4bc7-97a4-92f8b148b55e
+# ╠═a8e2dfb7-8251-466c-9b97-09f82bdd9c30
+# ╠═2e458ad2-6536-4f4d-aa0d-24676d1f9ff9
+# ╠═ac25ff1f-4a91-4135-a678-30d7e58deeba
+# ╟─0c98a2db-4f43-461f-8314-eb0cdc919567
+# ╠═e9ae5123-84cb-4000-9f74-74ef3cd19b5a
+# ╠═ed4959f6-74ff-40d9-b37c-c413b165b679
+# ╠═bcb51ed2-c629-41b1-bd70-f44e6c26ed51
+# ╠═1668be62-eaee-4035-8f22-5c430bb5c0b4
+# ╠═2f268499-d2b7-49d3-9f04-36968b7a38b7
 # ╠═249458e1-a531-4d86-90ea-bab1f73b2400
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

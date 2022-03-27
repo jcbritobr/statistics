@@ -1,4 +1,4 @@
-# Estatística Básica
+# Estatística na Linguagem Julia
 
 Este notebook descreve simples exercícios sobre estatística básica usando linguagem Julia e envolve:
 
