@@ -105,9 +105,6 @@ md"""
 ## A Probabilidade da União
 """
 
-# ╔═╡ 47290cec-bfa9-42b2-89b1-0c679dc8b121
-
-
 # ╔═╡ 15126370-335c-4cdb-8253-a71e4a1d31d3
 md"""
 # Variáveis Aleatórias
@@ -312,11 +309,221 @@ end
 # ╔═╡ 2f268499-d2b7-49d3-9f04-36968b7a38b7
 DistributionParams()
 
+# ╔═╡ 5dfb3e1e-d185-4c79-a6a6-a9e3c89c7c18
+md"""
+## Usando a função rand() com Distribuições
+Neste exemplo geramos observações aleatórias de um objeto pela função rand() e comparamos as médias.
+"""
+
+# ╔═╡ bc85308b-cedd-4c42-bb89-dee7cb9aa171
+function UsingRand()
+	Random.seed!(1)
+	dist1 = TriangularDist(0, 10, 5)
+	dist2 = DiscreteUniform(1, 5)
+	theorMean1, theorMean2 = mean(dist1), mean(dist2)
+	
+	N = 10 ^ 6
+	data1 = rand(dist1, N)
+	data2 = rand(dist2, N)
+	estMean1, estMean2 = mean(data1), mean(data2)
+	println("Distribuição Triangular Simétrica no intervalo [0, 10] tem média $theorMean1. Estimada: $estMean1")
+	println("Distribuição Discreta Uniforme no conjunto {1, 2, 3, 4, 5} tem media $theorMean2. Estimada: $estMean2")
+end
+
+# ╔═╡ 52c26cec-849c-45e4-badb-101269bccf4c
+UsingRand()
+
+# ╔═╡ e02eb0b9-68b7-460e-bed2-bf7231e90df1
+md"""
+## Transformada Inversa
+"""
+
+# ╔═╡ a3cb8a4a-855d-4bf5-8a15-2a8e64b37333
+function InverseTransform()
+	triangDist = TriangularDist(0, 2, 1)
+	xGrid = 0:.1:2
+	N = 10 ^ 6
+	inverseSampleData = quantile.(triangDist, rand(N))
+	histogram(inverseSampleData, bins=40, normed=true, ylims=(0, 1.1), label="Transformada Inversa - Dado")
+	plot!(xGrid, pdf.(triangDist, xGrid), c=:red, lw=4, xlabel="x", label="PDF", ylabel="Density", legend=:topright)
+end
+
+# ╔═╡ f013624d-222f-437c-a8f9-2998a7db9d7c
+InverseTransform()
+
+# ╔═╡ 810475e3-af18-48bd-ac5a-824635e13ce3
+md"""
+# Famílias de Distribuições Discretas
+"""
+
+# ╔═╡ 5d69b014-9269-42f8-a487-db7da7af097a
+function GenerateDiscreteVariableFamily()
+	dists = [
+		DiscreteUniform(10, 20),
+		Binomial(10, .5),
+		Geometric(0.5),
+		NegativeBinomial(10, .5),
+		Hypergeometric(30, 40, 10),
+		Poisson(5.5)
+	]
+	println("Distribuição \t\t\t\t\t\t\t\t\t Parâmetros \t Suporte")
+	data = reshape([dists; params.(dists); ((d)->(minimum(d), maximum(d))).(dists)], length(dists), 3);
+	println(data[1, 1], " \t\t ", data[1, 2], " \t\t ", data[1, 3])
+	println(data[2, 1], " \t ", data[1, 2], " \t\t ", data[1, 3])
+	println(data[3, 1], " \t\t ", data[1, 2], " \t\t ", data[1, 3])
+	println(data[4, 1], " \t\t ", data[1, 2], " \t\t ", data[1, 3])
+	println(data[5, 1], " ", data[1, 2], " \t\t ", data[1, 3])
+	println(data[6, 1], " \t\t\t ", data[1, 2], " \t\t ", data[1, 3])
+end
+
+# ╔═╡ c87e9dd8-589f-4800-83de-95a4c3e410fd
+GenerateDiscreteVariableFamily()
+
+# ╔═╡ 2234e94b-818b-4a80-8446-3ba702f63062
+md"""
+## Distribuição Uniforme
+A _Distribuição Uniforme Discreta_ é uma distribuição que aplica igual probabilidade a todos os resultados dos eventos.\
+No exemplo abaixo demonstramos a distribuição _Uniforme Discreta_.\
+$$\mathbb{P}(X=x)=\frac{1}{6} \quad \text{for } x = 1,...,6.$$
+"""
+
+# ╔═╡ 5ec6a595-c99e-40e3-a952-9cbc05bc2451
+function DieToosDiscreteUniform()
+	faces, N = 1:6, 10 ^ 6
+	mcEstimate = counts(rand(faces, N), faces) / N
+
+	println("Média: $(sum(mcEstimate .* collect(1:6)))")
+	plot(faces, mcEstimate, line=:stem, marker=:circle, c=:blue, ms=10, msw=0, lw=4, label="MC estimatimativa")
+	plot!([i for i in faces], [1/6 for _ in faces], line=:stem, marker=:xcross, c=:red, ms=6, msw=0, lw=2, label="PMF", xlabel="Face", ylabel="Probabilidade", ylims=(0, 0.22))
+end
+
+# ╔═╡ 821f213b-e7a8-4cf9-b732-ac5c54ce8f57
+DieToosDiscreteUniform()
+
+# ╔═╡ 7ed13adf-d18b-436f-9301-aa31bb900e3d
+md"""
+## Distribuição Binomial
+A Distribuição Binomial Discreta é uma distribuição que aparece quando independentes, múltiplas e idênticas tentativas booleanas(true/false, yes/no...) são executadas.
+O exemplo abaixo simula o giro de uma moeda de dois lados justa, n vezes. Se a probabilidade de obter cara num único giro é p, então a probabilidade de obtermos x caras é dada pela equação abaixo:\
+\
+$$\mathbb{P} = (X = x) =\binom{n}{x}p^x(1-p)^{n-x} \quad \text{for } x = 0, 1,...,n$$
+"""
+
+# ╔═╡ e8383bfa-14a4-45ca-8be9-71f237d75486
+function GenerateBinomialDistribution()
+	binomialRV(n, p) = sum(rand(n) .< p)
+	p, n, N = .5, 10, 10 ^ 6
+	bDist = Binomial(n, p)
+	xGrid = 0:n
+	bPmf = [pdf(bDist, i) for i in xGrid]
+	data = [binomialRV(n, p) for _ in 1:N]
+	pmfEst = counts(data, 0:n) / N
+	
+	total = sum(bPmf)
+	println("Total da função massa de probabilidade: $total")
+	println("Média: $(sum(xGrid .* bPmf))")
+	println("Média: $(mean(bDist))")
+
+	plot(xGrid, pmfEst, line=:stem, mark=:circle, c=:blue, ms=10, msw=0, lw=4, label="MC Estimativa")
+
+	plot!(xGrid, bPmf, line=:stem, marker=:xcross, c=:red, ms=6, msw=0, lw=2, label="PMF", xticks=(0:1:10), ylims=(0, .3), xlabel="x", ylabel="Probabilidade")
+end
+
+# ╔═╡ 2c07d0cc-44da-48a8-8b59-b001f40cd8c6
+GenerateBinomialDistribution()
+
+# ╔═╡ 479bdfbf-bf61-4460-9b8a-30db48552bd4
+md"""
+## Distribuição Gemométrica
+$$\mathbb{P}(X=x)=p(1-p)^{x-1} \quad \text{for } x = 1,2,....$$
+$$\mathbb{P}(\tilde{X}=x)=p(1-p)^x \quad \text{for } x = 0,1,2,....$$
+"""
+
+# ╔═╡ c18fd297-8c6c-4cfa-bc64-0b4d9e066d57
+function PlayRoulette()
+	function rouletteSpins(p)
+		x = 0
+		while true
+			x +=1
+			if rand() < p
+				return x
+			end
+		end
+	end
+
+	p, xGrid, N = 18/37, 1:7, 10^6
+	gDist = Geometric(p)
+	gPmf = [pdf(gDist, x-1) for x in xGrid]
+
+	mcEstimate = counts([rouletteSpins(p) for _ in 1:N], xGrid)/N
+
+	println("Média: $(sum(mcEstimate .* xGrid)) ?")
+	println("Média: $(mean(gDist))")
+	println("Total: $(sum(mcEstimate))")
+	
+	plot(xGrid, mcEstimate, line=:stem, marker=:circle, c=:blue, ms=10, msw=0, lw=4, label="MC Estimativa")
+	
+	plot!(xGrid, gPmf, line=:stem, marker=:xcross, c=:red, ms=6, msw=0, lw=2, label="PMF", ylims=(0, .5), xlabel="x", ylabel="Probabilidade")
+end
+
+# ╔═╡ fbdb992f-971b-4063-8c60-3dcd78a91607
+PlayRoulette()
+
+# ╔═╡ f82526dd-8983-442a-8321-c9ae7a5ea940
+md"""
+## Distribuição Binomial Negativa
+$$\mathbb{P}(X=x)=\binom{x-1}{r-1}p^{r}(1-p)^{x-r} \quad \text{for } x=r,r+1,r+2,....$$
+
+$$\mathbb{P}(\tilde{X}=x)=\binom{x + r -1}{x}p^{r}(1-p)^x \quad \text{for } x=0,1,2,....$$
+"""
+
+# ╔═╡ 11595fb9-ba58-4435-852c-31537fe1e017
+function PlayRouletteInNegativeBinomial()
+	function rouletteSpins(r, p)
+		x = 0
+		wins = 0;
+		while true
+			x += 1
+			if rand() < p
+				wins += 1
+				if wins == r
+					return x
+				end
+			end
+		end
+	end
+	r, p, N = 5, 18/37, 10^6
+	xGrid = r:r+15
+	mcEstimate = counts([rouletteSpins(r, p) for _ in 1:N], xGrid)/N
+
+	nbDist = NegativeBinomial(r, p)
+	nbPmf = [pdf(nbDist, x-r) for x in xGrid]
+
+	println("Total da massa de probabilidade $(sum(mcEstimate))")
+	media = sum(xGrid .* mcEstimate)
+	println("Média: $media")
+	println("Média da biblioteca: $(sum(nbPmf .* xGrid))")
+
+	plot(xGrid, mcEstimate, line=:stem, marker=:circle, c=:blue, ms=10, msw=0, lw=4, label="MC estimativa")
+	plot!(xGrid, nbPmf, line=:stem, marker=:xcross, c=:red, ms=6, msw=0, lw=2, label="PMF", xlims=(0, maximum(xGrid)), ylims=(0, .2), xlabel="x", ylabel="Probabilidade")
+end
+
+# ╔═╡ 658d6d3c-1492-4c1f-b285-0898becff342
+PlayRouletteInNegativeBinomial()
+
 # ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
 md"""
 $$\sum_{k=1}^n+\prod_{k=2}^n+\lim_{x=\infty}f(x)=0$$
 $$k <= x$$
 """
+
+# ╔═╡ fa86eb5d-6b26-49b4-a4c3-ba4bed42e102
+begin
+	NSAMP = 10 ^ 6
+	println("Amostragem uniforme pela função rand(N). Padrão")
+	uniform = rand(N)
+	histogram(uniform, bins=20, normed = true, legend=:false)
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1334,7 +1541,7 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╠═653103ae-a91b-11ec-3cbd-6bcb6a71d48a
-# ╠═26e4377a-377d-47b9-9305-6b210d8b482b
+# ╟─26e4377a-377d-47b9-9305-6b210d8b482b
 # ╟─1952bd5c-162e-4f32-9e7c-3eb5a8c9f7b1
 # ╠═8d2f266a-caf8-41a3-ae7a-5b4bae8e4c78
 # ╠═5e8ad639-4cc4-45d0-a409-9ae2cbc932c4
@@ -1344,7 +1551,6 @@ version = "0.9.1+5"
 # ╠═57055390-7986-4b1e-a912-a7694774144b
 # ╠═52564831-4087-4cec-b47c-f88e6a045576
 # ╟─2176a0a5-65f3-4434-a480-d6aea8adb68b
-# ╠═47290cec-bfa9-42b2-89b1-0c679dc8b121
 # ╟─15126370-335c-4cdb-8253-a71e4a1d31d3
 # ╠═60e0db2c-7631-48cc-b770-1c32aa829fd5
 # ╟─014073e2-2866-435a-92b6-1e6eb1b6a822
@@ -1355,7 +1561,7 @@ version = "0.9.1+5"
 # ╟─c925cee6-f0de-4455-97a1-86298ab4d0cd
 # ╠═cc11e376-6a80-4bd6-9192-24645c2f38f6
 # ╠═40883644-b558-42c6-bc40-73bf32ec8a20
-# ╠═3656ac99-54c9-4489-8065-bd23a821105a
+# ╟─3656ac99-54c9-4489-8065-bd23a821105a
 # ╠═48173688-6f1d-40cd-9221-db9f8499b449
 # ╠═ab392208-b361-4a70-98b0-3d5bfe79a9d6
 # ╟─35f01290-5202-4822-bf78-0972c6f1c9d3
@@ -1364,15 +1570,37 @@ version = "0.9.1+5"
 # ╟─04d3b996-6ed5-45f1-9764-19cc15efe2de
 # ╠═8c5c3321-55dc-40af-aec5-0146a2c00238
 # ╠═2ac8ef95-02a6-4bc7-97a4-92f8b148b55e
-# ╠═a8e2dfb7-8251-466c-9b97-09f82bdd9c30
+# ╟─a8e2dfb7-8251-466c-9b97-09f82bdd9c30
 # ╠═2e458ad2-6536-4f4d-aa0d-24676d1f9ff9
 # ╠═ac25ff1f-4a91-4135-a678-30d7e58deeba
 # ╟─0c98a2db-4f43-461f-8314-eb0cdc919567
 # ╠═e9ae5123-84cb-4000-9f74-74ef3cd19b5a
 # ╠═ed4959f6-74ff-40d9-b37c-c413b165b679
-# ╠═bcb51ed2-c629-41b1-bd70-f44e6c26ed51
+# ╟─bcb51ed2-c629-41b1-bd70-f44e6c26ed51
 # ╠═1668be62-eaee-4035-8f22-5c430bb5c0b4
 # ╠═2f268499-d2b7-49d3-9f04-36968b7a38b7
-# ╠═249458e1-a531-4d86-90ea-bab1f73b2400
+# ╟─5dfb3e1e-d185-4c79-a6a6-a9e3c89c7c18
+# ╠═bc85308b-cedd-4c42-bb89-dee7cb9aa171
+# ╠═52c26cec-849c-45e4-badb-101269bccf4c
+# ╠═e02eb0b9-68b7-460e-bed2-bf7231e90df1
+# ╠═a3cb8a4a-855d-4bf5-8a15-2a8e64b37333
+# ╠═f013624d-222f-437c-a8f9-2998a7db9d7c
+# ╟─810475e3-af18-48bd-ac5a-824635e13ce3
+# ╠═5d69b014-9269-42f8-a487-db7da7af097a
+# ╠═c87e9dd8-589f-4800-83de-95a4c3e410fd
+# ╠═2234e94b-818b-4a80-8446-3ba702f63062
+# ╠═5ec6a595-c99e-40e3-a952-9cbc05bc2451
+# ╠═821f213b-e7a8-4cf9-b732-ac5c54ce8f57
+# ╠═7ed13adf-d18b-436f-9301-aa31bb900e3d
+# ╠═e8383bfa-14a4-45ca-8be9-71f237d75486
+# ╠═2c07d0cc-44da-48a8-8b59-b001f40cd8c6
+# ╠═479bdfbf-bf61-4460-9b8a-30db48552bd4
+# ╠═c18fd297-8c6c-4cfa-bc64-0b4d9e066d57
+# ╠═fbdb992f-971b-4063-8c60-3dcd78a91607
+# ╠═f82526dd-8983-442a-8321-c9ae7a5ea940
+# ╠═11595fb9-ba58-4435-852c-31537fe1e017
+# ╠═658d6d3c-1492-4c1f-b285-0898becff342
+# ╟─249458e1-a531-4d86-90ea-bab1f73b2400
+# ╠═fa86eb5d-6b26-49b4-a4c3-ba4bed42e102
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
