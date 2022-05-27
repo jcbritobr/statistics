@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.19.5
 
 using Markdown
 using InteractiveUtils
@@ -531,6 +531,18 @@ end
 
 # ╔═╡ eed06908-74b2-49aa-a650-928dfa6e3aac
 GenerateHyperGeometricDistribution()
+
+# ╔═╡ c2bb2537-68be-428b-9263-5a5b126c99a3
+md"""
+## Distribuição Poisson
+$$\prod_{i=1}^NU_i\geq e^{-\lambda} > \prod_{i=1}^{N+1}U_{i,}$$
+"""
+
+# ╔═╡ ba5f4f0f-43bb-45d4-86c7-17d406a8da97
+function GeneratePoissonDistribution()
+	function prn(lambda)
+	end
+end
 
 # ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
 md"""
@@ -1161,9 +1173,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.Qt5Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "xkbcommon_jll"]
-git-tree-sha1 = "ad368663a5e20dbb8d6dc2fddeefe4dae0781ae8"
+git-tree-sha1 = "c6c0f690d0cc7caddb74cef7aa847b824a16b256"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
-version = "5.15.3+0"
+version = "5.15.3+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -1624,7 +1636,9 @@ version = "0.9.1+5"
 # ╠═4743106c-5dbe-468c-b254-1789d71974f4
 # ╠═ef39ca7e-4aae-403a-9074-ee6dcb725d06
 # ╠═eed06908-74b2-49aa-a650-928dfa6e3aac
-# ╟─249458e1-a531-4d86-90ea-bab1f73b2400
+# ╠═c2bb2537-68be-428b-9263-5a5b126c99a3
+# ╠═ba5f4f0f-43bb-45d4-86c7-17d406a8da97
+# ╠═249458e1-a531-4d86-90ea-bab1f73b2400
 # ╠═fa86eb5d-6b26-49b4-a4c3-ba4bed42e102
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
