@@ -541,8 +541,25 @@ $$\prod_{i=1}^NU_i\geq e^{-\lambda} > \prod_{i=1}^{N+1}U_{i,}$$
 # ╔═╡ ba5f4f0f-43bb-45d4-86c7-17d406a8da97
 function GeneratePoissonDistribution()
 	function prn(lambda)
+		k, p = 0, 1
+		while p > MathConstants.e^(-lambda)
+			k += 1
+			p *= rand()
+		end
+		return k - 1
 	end
+
+	xGrid, lambda, N = 0:16, 5.5, 10 ^ 6
+	pDist = Poisson(lambda)
+	bPmf = pdf.(pDist, xGrid)
+	data = counts([prn(lambda) for _ in 1:N], xGrid) / N
+	plot(xGrid, data, line=:stem, marker=:circle, c=:blue, ms=10, msw=0, lw=4, label="Mc Estimate")
+	plot!(xGrid, bPmf, line=:stem, marker=:xcross, c=:red, ms=6, msw=0, lw=2, label="PMF", ylims=(0,0.2), xlabel="x", ylabel="Probability of x events")
+		
 end
+
+# ╔═╡ 5a444ede-f21a-4b78-a007-f0826ef5b9a2
+GeneratePoissonDistribution()
 
 # ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
 md"""
@@ -1636,8 +1653,9 @@ version = "0.9.1+5"
 # ╠═4743106c-5dbe-468c-b254-1789d71974f4
 # ╠═ef39ca7e-4aae-403a-9074-ee6dcb725d06
 # ╠═eed06908-74b2-49aa-a650-928dfa6e3aac
-# ╠═c2bb2537-68be-428b-9263-5a5b126c99a3
+# ╟─c2bb2537-68be-428b-9263-5a5b126c99a3
 # ╠═ba5f4f0f-43bb-45d4-86c7-17d406a8da97
+# ╠═5a444ede-f21a-4b78-a007-f0826ef5b9a2
 # ╠═249458e1-a531-4d86-90ea-bab1f73b2400
 # ╠═fa86eb5d-6b26-49b4-a4c3-ba4bed42e102
 # ╟─00000000-0000-0000-0000-000000000001
