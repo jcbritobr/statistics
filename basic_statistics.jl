@@ -268,8 +268,9 @@ ExampleWeightVector()
 # ╔═╡ 0c98a2db-4f43-461f-8314-eb0cdc919567
 md"""
 ## Usando Objetos para criar distribuições
-Exemplo mostra como usar o pacote _Distributions.jl_ para criar uma distribuição triangular a partir da seguinte densidade:\
-$$f(x)=\begin{cases} x & \quad \text{for } x \in [0,1], \\ 2 - x & \quad \text{for } x \in (1,2]. \end{cases}$$
+Exemplo mostra como usar o pacote _Distributions.jl_ para criar uma distribuição triangular a partir da seguinte densidade: \
+
+$$f(x)=\begin{cases} x & \quad \text{para } x \in [0,1], \\ 2 - x & \quad \text{para } x \in (1,2]. \end{cases}$$
 """
 
 # ╔═╡ e9ae5123-84cb-4000-9f74-74ef3cd19b5a
@@ -384,7 +385,7 @@ md"""
 ## Distribuição Uniforme
 A _Distribuição Uniforme Discreta_ é uma distribuição que aplica igual probabilidade a todos os resultados dos eventos.\
 No exemplo abaixo demonstramos a distribuição _Uniforme Discreta_.\
-$$\mathbb{P}(X=x)=\frac{1}{6} \quad \text{for } x = 1,...,6.$$
+$$\mathbb{P}(X=x)=\frac{1}{6} \quad \text{para } x = 1,...,6.$$
 """
 
 # ╔═╡ 5ec6a595-c99e-40e3-a952-9cbc05bc2451
@@ -406,7 +407,7 @@ md"""
 A Distribuição Binomial Discreta é uma distribuição que aparece quando independentes, múltiplas e idênticas tentativas booleanas(true/false, yes/no...) são executadas.
 O exemplo abaixo simula o giro de uma moeda de dois lados justa, n vezes. Se a probabilidade de obter cara num único giro é p, então a probabilidade de obtermos x caras é dada pela equação abaixo:\
 \
-$$\mathbb{P} = (X = x) =\binom{n}{x}p^x(1-p)^{n-x} \quad \text{for } x = 0, 1,...,n$$
+$$\mathbb{P} = (X = x) =\binom{n}{x}p^x(1-p)^{n-x} \quad \text{para } x = 0, 1,...,n$$
 """
 
 # ╔═╡ e8383bfa-14a4-45ca-8be9-71f237d75486
@@ -435,8 +436,8 @@ GenerateBinomialDistribution()
 # ╔═╡ 479bdfbf-bf61-4460-9b8a-30db48552bd4
 md"""
 ## Distribuição Gemométrica
-$$\mathbb{P}(X=x)=p(1-p)^{x-1} \quad \text{for } x = 1,2,....$$
-$$\mathbb{P}(\tilde{X}=x)=p(1-p)^x \quad \text{for } x = 0,1,2,....$$
+$$\mathbb{P}(X=x)=p(1-p)^{x-1} \quad \text{para } x = 1,2,....$$
+$$\mathbb{P}(\tilde{X}=x)=p(1-p)^x \quad \text{para } x = 0,1,2,....$$
 """
 
 # ╔═╡ c18fd297-8c6c-4cfa-bc64-0b4d9e066d57
@@ -472,9 +473,9 @@ PlayRoulette()
 # ╔═╡ f82526dd-8983-442a-8321-c9ae7a5ea940
 md"""
 ## Distribuição Binomial Negativa
-$$\mathbb{P}(X=x)=\binom{x-1}{r-1}p^{r}(1-p)^{x-r} \quad \text{for } x=r,r+1,r+2,....$$
+$$\mathbb{P}(X=x)=\binom{x-1}{r-1}p^{r}(1-p)^{x-r} \quad \text{para } x=r,r+1,r+2,....$$
 
-$$\mathbb{P}(\tilde{X}=x)=\binom{x + r -1}{x}p^{r}(1-p)^x \quad \text{for } x=0,1,2,....$$
+$$\mathbb{P}(\tilde{X}=x)=\binom{x + r -1}{x}p^{r}(1-p)^x \quad \text{para } x=0,1,2,....$$
 """
 
 # ╔═╡ 11595fb9-ba58-4435-852c-31537fe1e017
@@ -510,6 +511,26 @@ end
 
 # ╔═╡ 658d6d3c-1492-4c1f-b285-0898becff342
 PlayRouletteInNegativeBinomial()
+
+# ╔═╡ 4743106c-5dbe-468c-b254-1789d71974f4
+md"""
+## Distribuição Hipergeométrica
+$$p(x)=\frac{\binom{K}{x}\binom{L-K}{n -x}}{\binom{L}{n}} \quad \text{para } x = max(0, n + K - L),...,min(n, K)$$
+"""
+
+# ╔═╡ ef39ca7e-4aae-403a-9074-ee6dcb725d06
+function GenerateHyperGeometricDistribution()
+	L, K, n = 500, [450, 400, 250, 100, 50], 30
+	hyperDists = [Hypergeometric(k, L-k, n) for k in K]
+	xGrid = 0:1:n
+	pmfs = [pdf.(dist, xGrid) for dist in hyperDists]
+	labels = "Successos = " .* string.(K)
+
+	bar(xGrid, pmfs, alpha=0.6, c=[:orange :purple :green :red :blue], label=hcat(labels...), ylims = (0, .25), xlabel="x", ylabel="Probabilidade", legend=:top)
+end
+
+# ╔═╡ eed06908-74b2-49aa-a650-928dfa6e3aac
+GenerateHyperGeometricDistribution()
 
 # ╔═╡ 249458e1-a531-4d86-90ea-bab1f73b2400
 md"""
@@ -1573,7 +1594,7 @@ version = "0.9.1+5"
 # ╟─a8e2dfb7-8251-466c-9b97-09f82bdd9c30
 # ╠═2e458ad2-6536-4f4d-aa0d-24676d1f9ff9
 # ╠═ac25ff1f-4a91-4135-a678-30d7e58deeba
-# ╟─0c98a2db-4f43-461f-8314-eb0cdc919567
+# ╠═0c98a2db-4f43-461f-8314-eb0cdc919567
 # ╠═e9ae5123-84cb-4000-9f74-74ef3cd19b5a
 # ╠═ed4959f6-74ff-40d9-b37c-c413b165b679
 # ╟─bcb51ed2-c629-41b1-bd70-f44e6c26ed51
@@ -1600,6 +1621,9 @@ version = "0.9.1+5"
 # ╠═f82526dd-8983-442a-8321-c9ae7a5ea940
 # ╠═11595fb9-ba58-4435-852c-31537fe1e017
 # ╠═658d6d3c-1492-4c1f-b285-0898becff342
+# ╠═4743106c-5dbe-468c-b254-1789d71974f4
+# ╠═ef39ca7e-4aae-403a-9074-ee6dcb725d06
+# ╠═eed06908-74b2-49aa-a650-928dfa6e3aac
 # ╟─249458e1-a531-4d86-90ea-bab1f73b2400
 # ╠═fa86eb5d-6b26-49b4-a4c3-ba4bed42e102
 # ╟─00000000-0000-0000-0000-000000000001
